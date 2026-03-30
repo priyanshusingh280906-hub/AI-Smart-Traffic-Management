@@ -5,62 +5,78 @@ import random
 
 app = Flask(__name__)
 
-# Global dictionary to store the 'live' state of your city
-traffic_system = {
+# --- GLOBAL SYSTEM STATE ---
+# This dictionary holds the live data for your "Nexus AI" engine
+nexus_state = {
     "lanes": {
-        "south": 41,
-        "east": 28,
-        "north": 15,
-        "west": 10
+        "south": 42,
+        "east": 25,
+        "north": 18,
+        "west": 12
+    },
+    "stats": {
+        "co2_saved": 0.0,
+        "fuel_saved": 0.0,
+        "efficiency": 0
     },
     "emergency_active": False,
-    "recommendation": "Maintain Current Flow"
+    "recommendation": "OPTIMIZING FLOW"
 }
 
-def calculate_green_time(count):
-    return min(10 + (count * 2), 60)
+# --- BACKEND LOGIC ---
 
-# This function runs in the background and simulates traffic movement
-def mock_traffic_engine():
-    global traffic_system
+def traffic_engine():
+    """Background thread that simulates real-time traffic changes."""
+    global nexus_state
     while True:
-        if not traffic_system["emergency_active"]:
-            # Randomly fluctuate car counts
-            traffic_system["lanes"]["south"] += random.randint(-2, 2)
-            traffic_system["lanes"]["east"] += random.randint(-2, 2)
-            
-            # Ensure numbers stay realistic (between 5 and 60)
-            for lane in traffic_system["lanes"]:
-                traffic_system["lanes"][lane] = max(5, min(60, traffic_system["lanes"][lane]))
-            
-            # Simple AI logic: Which lane is busiest?
-            busiest = max(traffic_system["lanes"], key=traffic_system["lanes"].get)
-            traffic_system["recommendation"] = f"Prioritize {busiest.capitalize()} Lane"
-        
-        time.sleep(3) # Update every 3 seconds
+        if not nexus_state["emergency_active"]:
+            # 1. Simulate vehicle movement (-3 to +3 cars every cycle)
+            for lane in nexus_state["lanes"]:
+                change = random.randint(-3, 3)
+                nexus_state["lanes"][lane] = max(5, min(80, nexus_state["lanes"][lane] + change))
+
+            # 2. Update AI Recommendation based on density
+            busiest_lane = max(nexus_state["lanes"], key=nexus_state["lanes"].get)
+            nexus_state["recommendation"] = f"PRIORITIZING {busiest_lane.upper()} NODE"
+
+            # 3. Calculate Environmental Impact (Mock logic based on flow optimization)
+            total_flow = sum(nexus_state["lanes"].values())
+            nexus_state["stats"]["co2_saved"] += (total_flow * 0.0005)
+            nexus_state["stats"]["fuel_saved"] += (total_flow * 0.0002)
+            nexus_state["stats"]["efficiency"] = min(99, 70 + (total_flow // 10))
+
+        time.sleep(2) # Updates every 2 seconds
+
+# --- FLASK ROUTES ---
 
 @app.route('/')
 def index():
+    """Serves the main dashboard."""
     return render_template('index.html')
 
 @app.route('/get_stats')
 def get_stats():
-    return jsonify(traffic_system)
+    """API endpoint for the frontend to fetch data."""
+    return jsonify(nexus_state)
 
 @app.route('/trigger_emergency')
 def trigger_emergency():
-    traffic_system["emergency_active"] = True
-    traffic_system["recommendation"] = "EMERGENCY DETECTED: GREEN CORRIDOR ACTIVE"
+    """Forces the system into Emergency Priority Mode."""
+    nexus_state["emergency_active"] = True
+    nexus_state["recommendation"] = "EMERGENCY OVERRIDE: GREEN CORRIDOR ACTIVE"
     
-    # Threaded timer to reset after 10 seconds
-    def reset_emergency():
-        time.sleep(10)
-        traffic_system["emergency_active"] = False
-        
-    threading.Thread(target=reset_emergency).start()
-    return jsonify({"status": "Emergency Mode Activated"})
+    # Auto-reset after 8 seconds of "Priority Green"
+    def reset_timer():
+        time.sleep(8)
+        nexus_state["emergency_active"] = False
+    
+    threading.Thread(target=reset_timer).start()
+    return jsonify({"status": "Priority Mode Engaged"})
 
 if __name__ == '__main__':
-    # Start the mock engine thread before starting Flask
-    threading.Thread(target=mock_traffic_engine, daemon=True).start()
+    # Start the simulation engine in the background
+    engine_thread = threading.Thread(target=traffic_engine, daemon=True)
+    engine_thread.start()
+    
+    # Run the Flask Server
     app.run(debug=True, port=5000)
