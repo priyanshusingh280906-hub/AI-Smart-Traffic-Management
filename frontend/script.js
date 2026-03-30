@@ -50,3 +50,9 @@ function animateWave() {
 }
 
 animateWave();
+
+document.getElementById('demo-btn').addEventListener('click', () => {
+    fetch('/start_sim')
+        .then(response => response.json())
+        .then(data => alert(data.status));
+});
