@@ -1,103 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Utkarsh | Smart Traffic Dashboard</title>
+    <title>Nexus AI | Intelligent Traffic Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <header class="header-section">
-        <h1>Interactive Dashboard Demo</h1>
-        <p>Real-time AI-powered traffic control for Narula Institute of Technology</p>
-    </header>
+    <nav class="navbar-container">
+        <div class="navbar-glass">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <i data-lucide="shield-check" class="logo-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="main-title">NEXUS</span>
+                    <span class="sub-title">TRAFFIC ENGINE</span>
+                </div>
+            </div>
 
-    <div class="main-container glass">
-        <div class="kpi-label">KPI</div>
+            <div class="nav-status hidden lg:flex">
+                <span class="pulse-dot"></span>
+                <span class="status-text">AI CORE: OPERATIONAL</span>
+            </div>
 
-        <div class="stats-grid">
-            <div class="card">
-                <i data-lucide="car" class="icon-green"></i>
-                <div>
-                    <span>Avg Vehicles</span>
-                    <strong id="stat-vehicles">156</strong>
+            <div class="nav-right">
+                <div class="icon-group">
+                    <button class="icon-btn" title="Notifications">
+                        <i data-lucide="bell"></i>
+                        <span class="badge"></span>
+                    </button>
+                    <button class="icon-btn" title="System Settings">
+                        <i data-lucide="sliders-horizontal"></i>
+                    </button>
+                </div>
+
+                <div class="user-profile">
+                    <div class="user-details">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Root Access</span>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=3b82f6&color=fff" class="avatar"
+                        alt="User">
                 </div>
             </div>
-            <div class="card">
-                <i data-lucide="layers" class="icon-emerald"></i>
+        </div>
+    </nav>
+
+    <main class="main-wrapper">
+        <div class="impact-grid">
+            <div class="impact-card">
+                <div class="impact-icon bg-emerald-500/10 text-emerald-400"><i data-lucide="leaf"></i></div>
                 <div>
-                    <span>Lanes Monitored</span>
-                    <strong>12</strong>
+                    <p class="label">Carbon Offset</p>
+                    <h3 id="stat-co2">0.00 kg</h3>
                 </div>
             </div>
-            <div class="card">
-                <i data-lucide="ambulance" class="icon-red"></i>
+            <div class="impact-card">
+                <div class="impact-icon bg-blue-500/10 text-blue-400"><i data-lucide="fuel"></i></div>
                 <div>
-                    <span>Emergency Alerts</span>
-                    <strong id="stat-emergency">0</strong>
+                    <p class="label">Fuel Saved</p>
+                    <h3 id="stat-fuel">0.00 L</h3>
                 </div>
             </div>
-            <div class="card">
-                <i data-lucide="cpu" class="icon-blue"></i>
+            <div class="impact-card">
+                <div class="impact-icon bg-orange-500/10 text-orange-400"><i data-lucide="clock"></i></div>
                 <div>
-                    <span>AI Confidence</span>
-                    <strong>98.2%</strong>
+                    <p class="label">Wait Time Reduction</p>
+                    <h3 id="stat-wait">0%</h3>
                 </div>
             </div>
         </div>
 
-        <div class="dashboard-layout">
-            <div class="feed-column">
-                <div class="video-container">
-                    <div class="overlay south">South: <span id="count-south">41</span> cars</div>
-                    <div class="overlay east">East: <span id="count-east">28</span> cars</div>
-                    
-                    <div class="ai-recommendation">
-                        <small>AI RECOMMENDS</small>
-                        <h2 id="recommendation-text">Maintain Current Flow</h2>
+        <div class="dashboard-grid">
+            <div class="feed-container">
+                <div class="video-shell">
+                    <div class="data-tag tag-top">NODE_041: SOUTH_LANE <span id="count-south">--</span></div>
+                    <div class="data-tag tag-bottom">NODE_041: EAST_LANE <span id="count-east">--</span></div>
+
+                    <div class="ai-status-overlay">
+                        <p class="status-label">AI DECISION ENGINE</p>
+                        <h2 id="recommendation-text">Initializing...</h2>
                     </div>
 
                     <div class="video-placeholder">
-                        <i data-lucide="video" size="48"></i>
-                        <p>LIVE CAMERA FEED CAM_01</p>
+                        <div class="scanline"></div>
+                        <i data-lucide="cpu" size="48" class="opacity-20 mb-4"></i>
+                        <p class="text-slate-500 tracking-widest text-xs">ENCRYPTED STREAM // LIVE</p>
                     </div>
                 </div>
 
-                <div class="chart-container card">
-                    <p>Traffic Density Prediction (24h)</p>
-                    <svg viewBox="0 0 400 100" class="wave-chart">
+                <div class="chart-box">
+                    <div class="chart-header">
+                        <p>Traffic Density Projection</p>
+                        <span class="live-indicator">LIVE</span>
+                    </div>
+                    <svg viewBox="0 0 400 100" class="wave-svg">
                         <path id="wave-path" d="M0,80 Q40,20 80,70 T160,50 T240,90 T320,30 T400,60" />
                     </svg>
                 </div>
             </div>
 
-            <div class="analysis-column">
-                <div class="card analysis-list">
-                    <h3>Lane Analysis</h3>
-                    <div class="list-item"><span>Main Trunk</span><b class="text-green">94/100</b></div>
-                    <div class="list-item"><span>Frontal Traffic</span><b class="text-green">35/45</b></div>
-                    <div class="list-item"><span>Primary Locality</span><b class="text-green">12/20</b></div>
+            <div class="side-panel">
+                <div class="panel-card">
+                    <h4 class="panel-title">Node Analytics</h4>
+                    <div class="lane-row"><span>Primary Intersection</span><b id="stat-vehicles">0</b></div>
+                    <div class="lane-row"><span>Confidence Score</span><b>98.4%</b></div>
+                    <div class="lane-row"><span>Uptime</span><b>99.9%</b></div>
                 </div>
 
-                <div class="card priority-log" id="emergency-log">
-                    <h3>Emergency Log</h3>
-                    <div class="log-alert">
-                        <i data-lucide="shield-alert"></i>
+                <div class="panel-card emergency-box" id="emergency-log">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="shield-alert" class="alert-icon"></i>
                         <div>
-                            <p>System Normal</p>
-                            <div class="progress-bar"><div class="fill"></div></div>
+                            <h4 class="text-sm font-bold">Priority Status</h4>
+                            <p class="text-[10px] opacity-70">Standby for emergency override</p>
                         </div>
                     </div>
                 </div>
 
-                <button id="demo-btn" class="action-btn">Trigger Emergency Demo</button>
+                <button id="demo-btn" class="primary-btn">Manual Priority Override</button>
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="footer-container">
+        <div class="footer-glass">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <i data-lucide="activity" class="text-blue-500" size="18"></i>
+                    <span class="footer-logo">NEXUS <span class="text-slate-500 font-medium">CORE</span></span>
+                </div>
+                <p class="footer-credits">© 2026 Intelligent Systems Division</p>
+            </div>
+
+            <div class="footer-divider"></div>
+
+            <div class="footer-section hidden md:flex">
+                <div class="telemetry-item">
+                    <span class="t-label">API LATENCY</span>
+                    <span class="t-value text-emerald-400">24ms</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="t-label">ENCRYPTION</span>
+                    <span class="t-value">AES-256</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="t-label">REGION</span>
+                    <span class="t-value">LOCAL_HOST</span>
+                </div>
+            </div>
+
+            <div class="footer-right">
+                <div class="system-time" id="live-clock">00:00:00</div>
+                <div class="connection-status">
+                    <span class="status-indicator"></span>
+                    SECURE
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
+
 </html>

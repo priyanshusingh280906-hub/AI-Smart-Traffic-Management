@@ -1,48 +1,66 @@
 from flask import Flask, render_template, jsonify
-import traci
-import threading # Added to run simulation in background
-
-app = Flask(__name__)
-
-# --- YOUR PASTED CODE START ---
-def calculate_green_time(count):
-    # Basic logic: 10s base + 2s per car (max 60)
-    return min(10 + (count * 2), 60)
-
+import threading
 import time
 import random
 
-# Global variable to store "simulated" data
-traffic_data = {"lane_1": 0, "status": "Idle"}
+app = Flask(__name__)
 
-def run_mock_simulation():
-    global traffic_data
-    traffic_data["status"] = "Running"
-    
+# Global dictionary to store the 'live' state of your city
+traffic_system = {
+    "lanes": {
+        "south": 41,
+        "east": 28,
+        "north": 15,
+        "west": 10
+    },
+    "emergency_active": False,
+    "recommendation": "Maintain Current Flow"
+}
+
+def calculate_green_time(count):
+    return min(10 + (count * 2), 60)
+
+# This function runs in the background and simulates traffic movement
+def mock_traffic_engine():
+    global traffic_system
     while True:
-        # Generate random vehicle counts to simulate real movement
-        traffic_data["lane_1"] = random.randint(5, 45)
+        if not traffic_system["emergency_active"]:
+            # Randomly fluctuate car counts
+            traffic_system["lanes"]["south"] += random.randint(-2, 2)
+            traffic_system["lanes"]["east"] += random.randint(-2, 2)
+            
+            # Ensure numbers stay realistic (between 5 and 60)
+            for lane in traffic_system["lanes"]:
+                traffic_system["lanes"][lane] = max(5, min(60, traffic_system["lanes"][lane]))
+            
+            # Simple AI logic: Which lane is busiest?
+            busiest = max(traffic_system["lanes"], key=traffic_system["lanes"].get)
+            traffic_system["recommendation"] = f"Prioritize {busiest.capitalize()} Lane"
         
-        # Calculate fake green time based on your logic
-        green_time = calculate_green_time(traffic_data["lane_1"])
-        
-        print(f"Mock Sim: Detected {traffic_data['lane_1']} cars. Setting green for {green_time}s")
-        
-        time.sleep(2) # Update every 2 seconds
-
-        
-# --- YOUR PASTED CODE END ---
+        time.sleep(3) # Update every 3 seconds
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/start_sim')
-def start_sim():
-    # Start the simulation in a background thread so the site doesn't freeze
-    sim_thread = threading.Thread(target=run_simulation)
-    sim_thread.start()
-    return jsonify({"status": "Simulation started in background"})
+@app.route('/get_stats')
+def get_stats():
+    return jsonify(traffic_system)
+
+@app.route('/trigger_emergency')
+def trigger_emergency():
+    traffic_system["emergency_active"] = True
+    traffic_system["recommendation"] = "EMERGENCY DETECTED: GREEN CORRIDOR ACTIVE"
+    
+    # Threaded timer to reset after 10 seconds
+    def reset_emergency():
+        time.sleep(10)
+        traffic_system["emergency_active"] = False
+        
+    threading.Thread(target=reset_emergency).start()
+    return jsonify({"status": "Emergency Mode Activated"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Start the mock engine thread before starting Flask
+    threading.Thread(target=mock_traffic_engine, daemon=True).start()
+    app.run(debug=True, port=5000)

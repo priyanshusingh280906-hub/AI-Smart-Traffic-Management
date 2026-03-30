@@ -1,58 +1,45 @@
-// Initialize Icons
 lucide.createIcons();
 
-// Elements
-const vehicleStat = document.getElementById('stat-vehicles');
-const emergencyStat = document.getElementById('stat-emergency');
-const southCount = document.getElementById('count-south');
-const eastCount = document.getElementById('count-east');
-const recText = document.getElementById('recommendation-text');
-const emergencyLog = document.getElementById('emergency-log');
-const demoBtn = document.getElementById('demo-btn');
+let co2Saved = 0;
+let fuelSaved = 0;
 
-// 1. Simulate Live Counting
-setInterval(() => {
-    // Random vehicle fluctuations
-    let currentV = parseInt(vehicleStat.innerText);
-    vehicleStat.innerText = currentV + (Math.floor(Math.random() * 3) - 1);
-    
-    let s = parseInt(southCount.innerText);
-    southCount.innerText = s + (Math.floor(Math.random() * 3) - 1);
-}, 3000);
+async function syncDashboard() {
+    try {
+        const res = await fetch('/get_stats');
+        const data = await res.json();
 
-// 2. Emergency Demo Trigger
-demoBtn.addEventListener('click', () => {
-    // Change UI to Alert Mode
-    emergencyStat.innerText = "1";
-    recText.innerText = "AMBULANCE DETECTED - OPENING SOUTH";
-    emergencyLog.classList.add('emergency-active');
-    
-    // Alert Notification in Console
-    console.log("Priority Override: Emergency Vehicle in Sector 4");
+        document.getElementById('count-south').innerText = data.lanes.south;
+        document.getElementById('count-east').innerText = data.lanes.east;
+        document.getElementById('recommendation-text').innerText = data.recommendation;
+        
+        // Update counters
+        const avg = Math.round((data.lanes.south + data.lanes.east) / 2);
+        document.getElementById('stat-vehicles').innerText = avg;
 
-    // Reset after 6 seconds
-    setTimeout(() => {
-        emergencyStat.innerText = "0";
-        recText.innerText = "Maintain Current Flow";
-        emergencyLog.classList.remove('emergency-active');
-    }, 6000);
-});
+        co2Saved += (avg * 0.002);
+        fuelSaved += (avg * 0.0008);
+        
+        document.getElementById('stat-co2').innerText = co2Saved.toFixed(2) + " kg";
+        document.getElementById('stat-fuel').innerText = fuelSaved.toFixed(2) + " L";
+        document.getElementById('stat-wait').innerText = Math.floor(avg / 1.2) + "%";
 
-// 3. Dynamic Wave Chart Animation
-const wavePath = document.getElementById('wave-path');
-let phase = 0;
-
-function animateWave() {
-    phase += 0.05;
-    const d = `M0,80 Q40,${20 + Math.sin(phase)*10} 80,${70 + Math.cos(phase)*5} T160,50 T240,${90 + Math.sin(phase)*10} T320,30 T400,60`;
-    wavePath.setAttribute('d', d);
-    requestAnimationFrame(animateWave);
+    } catch (err) { console.log("System offline..."); }
 }
 
-animateWave();
-
 document.getElementById('demo-btn').addEventListener('click', () => {
-    fetch('/start_sim')
-        .then(response => response.json())
-        .then(data => alert(data.status));
+    fetch('/trigger_emergency');
 });
+
+setInterval(syncDashboard, 1500);
+
+function updateClock() {
+    const now = new Date();
+    const timeString = now.getHours().toString().padStart(2, '0') + ":" + 
+                       now.getMinutes().toString().padStart(2, '0') + ":" + 
+                       now.getSeconds().toString().padStart(2, '0');
+    document.getElementById('live-clock').innerText = timeString;
+}
+
+// Update clock every second
+setInterval(updateClock, 1000);
+updateClock(); // Run once immediately
