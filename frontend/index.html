@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Utkarsh | Smart Traffic Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header-section">
+        <h1>Interactive Dashboard Demo</h1>
+        <p>Real-time AI-powered traffic control for Narula Institute of Technology</p>
+    </header>
+
+    <div class="main-container glass">
+        <div class="kpi-label">KPI</div>
+
+        <div class="stats-grid">
+            <div class="card">
+                <i data-lucide="car" class="icon-green"></i>
+                <div>
+                    <span>Avg Vehicles</span>
+                    <strong id="stat-vehicles">156</strong>
+                </div>
+            </div>
+            <div class="card">
+                <i data-lucide="layers" class="icon-emerald"></i>
+                <div>
+                    <span>Lanes Monitored</span>
+                    <strong>12</strong>
+                </div>
+            </div>
+            <div class="card">
+                <i data-lucide="ambulance" class="icon-red"></i>
+                <div>
+                    <span>Emergency Alerts</span>
+                    <strong id="stat-emergency">0</strong>
+                </div>
+            </div>
+            <div class="card">
+                <i data-lucide="cpu" class="icon-blue"></i>
+                <div>
+                    <span>AI Confidence</span>
+                    <strong>98.2%</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-layout">
+            <div class="feed-column">
+                <div class="video-container">
+                    <div class="overlay south">South: <span id="count-south">41</span> cars</div>
+                    <div class="overlay east">East: <span id="count-east">28</span> cars</div>
+                    
+                    <div class="ai-recommendation">
+                        <small>AI RECOMMENDS</small>
+                        <h2 id="recommendation-text">Maintain Current Flow</h2>
+                    </div>
+
+                    <div class="video-placeholder">
+                        <i data-lucide="video" size="48"></i>
+                        <p>LIVE CAMERA FEED CAM_01</p>
+                    </div>
+                </div>
+
+                <div class="chart-container card">
+                    <p>Traffic Density Prediction (24h)</p>
+                    <svg viewBox="0 0 400 100" class="wave-chart">
+                        <path id="wave-path" d="M0,80 Q40,20 80,70 T160,50 T240,90 T320,30 T400,60" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="analysis-column">
+                <div class="card analysis-list">
+                    <h3>Lane Analysis</h3>
+                    <div class="list-item"><span>Main Trunk</span><b class="text-green">94/100</b></div>
+                    <div class="list-item"><span>Frontal Traffic</span><b class="text-green">35/45</b></div>
+                    <div class="list-item"><span>Primary Locality</span><b class="text-green">12/20</b></div>
+                </div>
+
+                <div class="card priority-log" id="emergency-log">
+                    <h3>Emergency Log</h3>
+                    <div class="log-alert">
+                        <i data-lucide="shield-alert"></i>
+                        <div>
+                            <p>System Normal</p>
+                            <div class="progress-bar"><div class="fill"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="demo-btn" class="action-btn">Trigger Emergency Demo</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
