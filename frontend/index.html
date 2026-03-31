@@ -1,172 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus AI | Intelligent Traffic Control</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Smart Traffic Management — Bug Busters</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
-<body >
-
-    <nav class="navbar-container">
-        <div class="navbar-glass">
-            <div class="nav-brand">
-                <div class="brand-logo">
-                    <i data-lucide="shield-check" class="logo-icon"></i>
-                </div>
-                <div class="brand-text">
-                    <span class="main-title">NEXUS</span>
-                    <span class="sub-title">TRAFFIC ENGINE</span>
-                </div>
-            </div>
-
-            <div class="nav-status hidden lg:flex">
-                <span class="pulse-dot"></span>
-                <span class="status-text">AI CORE: OPERATIONAL</span>
-            </div>
-
-            <div class="nav-right">
-                <div class="icon-group">
-                    <button class="icon-btn" title="Notifications">
-                        <i data-lucide="bell"></i>
-                        <span class="badge"></span>
-                    </button>
-                    <button class="icon-btn" title="System Settings">
-                        <i data-lucide="sliders-horizontal"></i>
-                    </button>
-                </div>
-
-                <div class="user-profile">
-                    <div class="user-details">
-                        <span class="user-name">Admin</span>
-                        <span class="user-role">Root Access</span>
-                    </div>
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=3b82f6&color=fff" class="avatar"
-                        alt="User">
-                </div>
-            </div>
+<body>
+ 
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">🚦</div>
+    <div>
+      <div class="logo-text">AI-TRAMS</div>
+      <div class="logo-sub">Traffic Mgmt System v1.0</div>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      SYSTEM ACTIVE — 24 INTERSECTIONS ONLINE
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="time-display" id="clock">00:00:00</div>
+    <button class="btn-sm" onclick="triggerEmergency()">🚨 SIMULATE EMERGENCY</button>
+    <button class="btn-sm btn-primary" onclick="toggleSimulation()">⏸ PAUSE SIM</button>
+  </div>
+</div>
+ 
+<!-- MAIN GRID -->
+<div class="main">
+ 
+  <!-- LEFT: Intersection List -->
+  <div class="left-panel">
+    <div class="panel-header">▸ INTERSECTIONS (24)</div>
+    <div class="intersection-list" id="intList"></div>
+    <div class="left-stats">
+      <div class="mini-stat">
+        <div class="mini-stat-val" id="totalVehicles">2,847</div>
+        <div class="mini-stat-label">Vehicles tracked</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-stat-val" style="color:var(--green)" id="avgWait">38s</div>
+        <div class="mini-stat-label">Avg wait time</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-stat-val" style="color:var(--amber)" id="throughput">1.4k</div>
+        <div class="mini-stat-label">Vehicles/hr thru</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-stat-val" style="color:var(--red)" id="congCount">3</div>
+        <div class="mini-stat-label">Congested zones</div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- CENTER: Intersection View -->
+  <div class="center-panel">
+    <div class="mode-tabs">
+      <div class="mode-tab active" onclick="switchView('intersection',this)">INTERSECTION VIEW</div>
+      <div class="mode-tab" onclick="switchView('analytics',this)">ANALYTICS</div>
+      <div class="mode-tab" onclick="switchView('routes',this)">ROUTE OPTIMIZER</div>
+    </div>
+ 
+    <!-- INTERSECTION TAB -->
+    <div class="tab-content active" id="view-intersection">
+      <div class="map-area">
+        <div class="map-bg"></div>
+        <div class="intersection-view" id="intView">
+          <div class="road-h"></div>
+          <div class="road-v"></div>
+          <div class="road-marking-h"></div>
+          <div class="road-marking-v"></div>
+ 
+          <!-- Heat overlays -->
+          <div class="heat-overlay" id="heat-n" style="left:50%;top:0;transform:translateX(-50%);width:90px;height:185px;background:linear-gradient(0deg,transparent,rgba(255,71,87,0.15));"></div>
+          <div class="heat-overlay" id="heat-s" style="left:50%;bottom:0;transform:translateX(-50%);width:90px;height:185px;background:linear-gradient(180deg,transparent,rgba(255,211,42,0.15));"></div>
+          <div class="heat-overlay" id="heat-e" style="right:0;top:50%;transform:translateY(-50%);width:185px;height:90px;background:linear-gradient(90deg,transparent,rgba(0,230,118,0.12));"></div>
+          <div class="heat-overlay" id="heat-w" style="left:0;top:50%;transform:translateY(-50%);width:185px;height:90px;background:linear-gradient(270deg,transparent,rgba(0,212,255,0.12));"></div>
+ 
+          <!-- Signals -->
+          <div class="signal sig-n" id="sig-n">
+            <div class="signal-dot on-red" id="sig-n-r"></div>
+            <div class="signal-dot" id="sig-n-a"></div>
+            <div class="signal-dot" id="sig-n-g"></div>
+          </div>
+          <div class="signal sig-s" id="sig-s">
+            <div class="signal-dot" id="sig-s-r"></div>
+            <div class="signal-dot" id="sig-s-a"></div>
+            <div class="signal-dot on-green" id="sig-s-g"></div>
+          </div>
+          <div class="signal sig-e" id="sig-e">
+            <div class="signal-dot on-red" id="sig-e-r"></div>
+            <div class="signal-dot" id="sig-e-a"></div>
+            <div class="signal-dot" id="sig-e-g"></div>
+          </div>
+          <div class="signal sig-w" id="sig-w">
+            <div class="signal-dot" id="sig-w-r"></div>
+            <div class="signal-dot" id="sig-w-a"></div>
+            <div class="signal-dot on-green" id="sig-w-g"></div>
+          </div>
+ 
+          <!-- Lane labels -->
+          <div class="lane-label label-n">N: <span id="cnt-n">12</span> vehicles</div>
+          <div class="lane-label label-s">S: <span id="cnt-s">7</span> vehicles</div>
+          <div class="lane-label label-e">E: <span id="cnt-e">4</span> vehicles</div>
+          <div class="lane-label label-w">W: <span id="cnt-w">9</span> vehicles</div>
+ 
+          <!-- Timer ring in center -->
+          <div class="timer-ring">
+            <svg viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="42" stroke="rgba(99,179,237,0.1)" stroke-width="4"/>
+              <circle cx="50" cy="50" r="42" stroke="var(--green)" stroke-width="4"
+                stroke-dasharray="264" id="timerCircle" stroke-dashoffset="0"
+                stroke-linecap="round"/>
+            </svg>
+            <div class="timer-ring-label" id="timerVal">32</div>
+            <div class="timer-ring-sub">SEC</div>
+          </div>
+ 
+          <!-- Vehicles (will be added by JS) -->
+          <div id="vehicles"></div>
         </div>
-    </nav>
-
-    <main class="main-wrapper">
-        <div class="impact-grid">
-            <div class="impact-card">
-                <div class="impact-icon bg-emerald-500/10 text-emerald-400"><i data-lucide="leaf"></i></div>
-                <div>
-                    <p class="label">Carbon Offset</p>
-                    <h3 id="stat-co2">0.00 kg</h3>
-                </div>
-            </div>
-            <div class="impact-card">
-                <div class="impact-icon bg-blue-500/10 text-blue-400"><i data-lucide="fuel"></i></div>
-                <div>
-                    <p class="label">Fuel Saved</p>
-                    <h3 id="stat-fuel">0.00 L</h3>
-                </div>
-            </div>
-            <div class="impact-card">
-                <div class="impact-icon bg-orange-500/10 text-orange-400"><i data-lucide="clock"></i></div>
-                <div>
-                    <p class="label">Wait Time Reduction</p>
-                    <h3 id="stat-wait">0%</h3>
-                </div>
-            </div>
+      </div>
+ 
+      <div class="int-info-bar">
+        <div class="int-info-name" id="activeIntName">Howrah Bridge Junction</div>
+        <div class="info-tag">Density: <span id="infoMode">HIGH</span></div>
+        <div class="info-tag">Signal: <span id="infoPhase" style="color:var(--green)">N-S GREEN</span></div>
+        <div class="info-tag">Cycle: <span id="infoCycle">45s</span></div>
+        <div class="info-tag">Vehicles: <span id="infoTotal">32</span></div>
+        <div class="emergency-alert hidden" id="emergencyAlert">
+          🚨 AMBULANCE DETECTED — GREEN CORRIDOR ACTIVE
         </div>
-
-        <div class="dashboard-grid">
-            <div class="feed-container">
-                <div class="video-shell">
-                    <div class="data-tag tag-top">NODE_041: SOUTH_LANE <span id="count-south">--</span></div>
-                    <div class="data-tag tag-bottom">NODE_041: EAST_LANE <span id="count-east">--</span></div>
-
-                    <div class="ai-status-overlay">
-                        <p class="status-label">AI DECISION ENGINE</p>
-                        <h2 id="recommendation-text">Initializing...</h2>
-                    </div>
-
-                    <div class="video-placeholder">
-                        <div class="scanline"></div>
-                        <i data-lucide="cpu" size="48" class="opacity-20 mb-4"></i>
-                        <p class="text-slate-500 tracking-widest text-xs">ENCRYPTED STREAM // LIVE</p>
-                    </div>
-                </div>
-
-                <div class="chart-box">
-                    <div class="chart-header">
-                        <p>Traffic Density Projection</p>
-                        <span class="live-indicator">LIVE</span>
-                    </div>
-                    <svg viewBox="0 0 400 100" class="wave-svg">
-                        <path id="wave-path" d="M0,80 Q40,20 80,70 T160,50 T240,90 T320,30 T400,60" />
-                    </svg>
-                </div>
+      </div>
+    </div>
+ 
+    <!-- ANALYTICS TAB -->
+    <div class="tab-content" id="view-analytics">
+      <div style="padding:20px;overflow-y:auto;height:100%">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="analytics-card">
+            <div class="analytics-card-title">▸ HOURLY TRAFFIC VOLUME</div>
+            <div class="mini-bar-chart" id="hourlyChart"></div>
+            <div style="margin-top:20px;font-size:10px;color:var(--text3);font-family:var(--mono)">Vehicles per hour across all intersections</div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-card-title">▸ WAIT TIME REDUCTION vs FIXED-TIMER</div>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:60px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div style="font-family:var(--mono);font-size:9px;color:var(--text3)">FIXED</div>
+                <div style="width:100%;background:rgba(255,71,87,0.6);border-radius:3px 3px 0 0;height:100%;min-height:50px;"></div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div style="font-family:var(--mono);font-size:9px;color:var(--text3)">AI-TRAMS</div>
+                <div style="width:100%;background:var(--green);border-radius:3px 3px 0 0;height:62%;"></div>
+              </div>
             </div>
-
-            <div class="side-panel">
-                <div class="panel-card">
-                    <h4 class="panel-title">Node Analytics</h4>
-                    <div class="lane-row"><span>Primary Intersection</span><b id="stat-vehicles">0</b></div>
-                    <div class="lane-row"><span>Confidence Score</span><b>98.4%</b></div>
-                    <div class="lane-row"><span>Uptime</span><b>99.9%</b></div>
-                </div>
-
-                <div class="panel-card emergency-box" id="emergency-log">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="shield-alert" class="alert-icon"></i>
-                        <div>
-                            <h4 class="text-sm font-bold">Priority Status</h4>
-                            <p class="text-[10px] opacity-70">Standby for emergency override</p>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="demo-btn" class="primary-btn">Manual Priority Override</button>
-            </div>
+            <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--green)">38% reduction in average wait time</div>
+          </div>
         </div>
-    </main>
-
-    <footer class="footer-container">
-        <div class="footer-glass">
-            <div class="footer-section">
-                <div class="footer-brand">
-                    <i data-lucide="activity" class="text-blue-500" size="18"></i>
-                    <span class="footer-logo">NEXUS <span class="text-slate-500 font-medium">CORE</span></span>
-                </div>
-                <p class="footer-credits">© 2026 Intelligent Systems Division</p>
-            </div>
-
-            <div class="footer-divider"></div>
-
-            <div class="footer-section hidden md:flex">
-                <div class="telemetry-item">
-                    <span class="t-label">API LATENCY</span>
-                    <span class="t-value text-emerald-400">24ms</span>
-                </div>
-                <div class="telemetry-item">
-                    <span class="t-label">ENCRYPTION</span>
-                    <span class="t-value">AES-256</span>
-                </div>
-                <div class="telemetry-item">
-                    <span class="t-label">REGION</span>
-                    <span class="t-value">LOCAL_HOST</span>
-                </div>
-            </div>
-
-            <div class="footer-right">
-                <div class="system-time" id="live-clock">00:00:00</div>
-                <div class="connection-status">
-                    <span class="status-indicator"></span>
-                    SECURE
-                </div>
-            </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">▸ 15-MINUTE CONGESTION PREDICTION (ML MODEL)</div>
+          <div class="prediction-area">
+            <svg viewBox="0 0 400 80" preserveAspectRatio="none" id="predSVG"></svg>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:8px;font-size:10px;color:var(--text3)">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:var(--accent);display:inline-block"></span>Actual</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:var(--purple);display:inline-block;border-top:2px dashed var(--purple)"></span>Predicted</span>
+          </div>
         </div>
-    </footer>
-
-    <script src="script.js"></script>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div class="metric-box">
+            <div class="metric-val green">38%</div>
+            <div class="metric-label">Wait time reduction</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val blue">1,420</div>
+            <div class="metric-label">Vehicles/hr throughput</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val amber">94.2%</div>
+            <div class="metric-label">Detection accuracy</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val green">23%</div>
+            <div class="metric-label">Fuel savings est.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ROUTES TAB -->
+    <div class="tab-content" id="view-routes">
+      <div style="padding:20px;overflow-y:auto;height:100%">
+        <div style="margin-bottom:16px;color:var(--text2);font-size:13px">Smart route suggestions from <strong style="color:var(--text)">Howrah Bridge</strong> to <strong style="color:var(--text)">Park Street</strong> — updated in real time</div>
+        <div class="route-item recommended">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div class="route-name">Via Strand Road → Brabourne Road</div>
+            <div class="route-tag best">RECOMMENDED</div>
+          </div>
+          <div class="route-meta">
+            <span>🕒 12 min</span>
+            <span>📏 5.2 km</span>
+            <span style="color:var(--green)">●  Low congestion</span>
+          </div>
+        </div>
+        <div class="route-item">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div class="route-name">Via Netaji Subhas Road → AJC Bose</div>
+            <div class="route-tag moderate">MODERATE</div>
+          </div>
+          <div class="route-meta">
+            <span>🕒 18 min</span>
+            <span>📏 4.8 km</span>
+            <span style="color:var(--amber)">● Medium congestion</span>
+          </div>
+        </div>
+        <div class="route-item">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div class="route-name">Via Vidyasagar Setu → EM Bypass</div>
+            <div class="route-tag slow">AVOID</div>
+          </div>
+          <div class="route-meta">
+            <span>🕒 34 min</span>
+            <span>📏 7.1 km</span>
+            <span style="color:var(--red)">● Heavy congestion</span>
+          </div>
+        </div>
+        <div class="analytics-card" style="margin-top:16px">
+          <div class="analytics-card-title">▸ ENVIRONMENTAL SAVINGS (TODAY)</div>
+          <div class="env-bar-row">
+            <div class="env-label">Fuel saved</div>
+            <div class="env-bar-bg"><div class="env-bar-fill" style="width:72%"></div></div>
+            <div class="env-val">4,820L</div>
+          </div>
+          <div class="env-bar-row">
+            <div class="env-label">CO₂ reduced</div>
+            <div class="env-bar-bg"><div class="env-bar-fill" style="width:65%"></div></div>
+            <div class="env-val">11.2T</div>
+          </div>
+          <div class="env-bar-row">
+            <div class="env-label">Idle time ↓</div>
+            <div class="env-bar-bg"><div class="env-bar-fill" style="width:81%"></div></div>
+            <div class="env-val">38%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="right-tabs">
+      <div class="right-tab active" onclick="switchRightTab('alerts',this)">ALERTS</div>
+      <div class="right-tab" onclick="switchRightTab('detection',this)">DETECTION</div>
+    </div>
+    <div class="right-content" id="rightContent">
+      <div class="tab-content active" id="rtab-alerts">
+        <div style="margin-bottom:8px;margin-top:4px">
+          <div class="analytics-card-title" style="margin-bottom:8px;padding-top:4px">▸ LIVE ALERT LOG</div>
+          <div id="alertLog"></div>
+        </div>
+      </div>
+      <div class="tab-content" id="rtab-detection">
+        <div class="analytics-card-title" style="margin:8px 0;padding-top:4px">▸ YOLO DETECTION FEED</div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-val blue" id="detCars">284</div>
+            <div class="metric-label">Cars</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val blue" id="detTrucks">47</div>
+            <div class="metric-label">Trucks/Buses</div>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="metric-val amber" id="detBikes">312</div>
+            <div class="metric-label">Two-wheelers</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val amber" id="detAutos">98</div>
+            <div class="metric-label">Auto-rickshaws</div>
+          </div>
+        </div>
+        <div class="analytics-card" style="margin-top:4px">
+          <div class="analytics-card-title">▸ MODEL CONFIDENCE</div>
+          <div class="env-bar-row">
+            <div class="env-label">Cars</div>
+            <div class="env-bar-bg"><div class="env-bar-fill" style="width:93%"></div></div>
+            <div class="env-val">0.93</div>
+          </div>
+          <div class="env-bar-row">
+            <div class="env-label">Trucks</div>
+            <div class="env-bar-bg"><div class="env-bar-fill" style="width:89%"></div></div>
+            <div class="env-val">0.89</div>
+          </div>
+          <div class="env-bar-row">
+            <div class="env-label">Emergency</div>
+            <div class="env-bar-bg"><div class="env-bar-fill" style="background:linear-gradient(90deg,var(--red),#ff8a8a);width:87%"></div></div>
+            <div class="env-val" style="color:var(--red)">0.87</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<div class="tooltip" id="tooltip"></div>
+ 
+<script src="script.js"></script>
 </body>
-
 </html>
